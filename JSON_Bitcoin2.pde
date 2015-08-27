@@ -1,18 +1,15 @@
-
 import processing.serial.*;
 
 JSONObject json;
 float old_value = 0;
 int cnt = 0;
-String symbol = "";
-String url = "https://blockchain.info/nl/tobtc?currency=EUR&value=1";
-Serial myPort;  
-float change = 0;
+String url = "https://api.bitcoinaverage.com/ticker/global/EUR/";
+Serial myPort;
+
 
 void setup() {
   frameRate( 1 ); // one frame per second
-  String lines[] = ( String[] )loadStrings( url ); // get the value from the web
-  float value = Float.parseFloat(lines[0]); // loadString give us a list. Grab the first one and make a float from it.
+  float value = getAndProcessJson();
   println(value); 
   old_value = value; // store it, so we can compare it later
 
@@ -22,23 +19,22 @@ void setup() {
 }
 
 void draw() {
-  if ( cnt++ < 10 ) { 
+  if ( cnt++ < 5 ) { 
     return;
   } else {
     cnt = 0;
   } // do nothing for 9 out of 10 frames. So we check once every 10 seconds
 
-  String lines[] = ( String[] )loadStrings( url ); // load the values again
-  float value = Float.parseFloat(lines[0]);
+  float value = getAndProcessJson(); // load the values again
+  float change = 0;
 
-  
   if ( value != old_value ) { // something changed
     change = value - old_value; // how much
     old_value = value; // save it again
-    
   }
-  if( change == 0 ){
-     print( "." );
+  
+  if ( change == 0 ) {
+    print( "." );
   } else {
     print( "Old: " + old_value + " New: " + value + " " );
     if ( change < 0 ) { // change is negative
@@ -48,6 +44,24 @@ void draw() {
       println( "Going up ^^^" );
       myPort.write('B');
     }
-    
   }
+}
+
+/*
+The JSON looks like this:
+{
+  "24h_avg": 201.09,
+  "ask": 203.18,
+  "bid": 202.92,
+  "last": 203.07,
+  "timestamp": "Thu, 27 Aug 2015 20:51:57 -0000",
+  "volume_btc": 9785.05,
+  "volume_percent": 12.98
+}
+We will use the 'last' value.
+*/
+float getAndProcessJson(  ) {
+  json = loadJSONObject( url );
+  float current = json.getFloat( "last" );
+  return current;
 }
