@@ -2,18 +2,19 @@
 import processing.serial.*;
 
 JSONObject json;
-float current = 0;
+float old_value = 0;
 int cnt = 0;
 String symbol = "";
 String url = "https://blockchain.info/nl/tobtc?currency=EUR&value=1";
 Serial myPort;  
+float change = 0;
 
 void setup() {
   frameRate( 1 ); // one frame per second
   String lines[] = ( String[] )loadStrings( url ); // get the value from the web
   float value = Float.parseFloat(lines[0]); // loadString give us a list. Grab the first one and make a float from it.
   println(value); 
-  current = value; // store it, so we can compare it later
+  old_value = value; // store it, so we can compare it later
 
   println(Serial.list());
   String portName = Serial.list()[3];
@@ -29,11 +30,17 @@ void draw() {
 
   String lines[] = ( String[] )loadStrings( url ); // load the values again
   float value = Float.parseFloat(lines[0]);
-  println(value);
 
-  if ( value != current ) { // something changed
-    float change = value - current; // how much
-    current = value; // save it again
+  
+  if ( value != old_value ) { // something changed
+    change = value - old_value; // how much
+    old_value = value; // save it again
+    
+  }
+  if( change == 0 ){
+     print( "." );
+  } else {
+    print( "Old: " + old_value + " New: " + value + " " );
     if ( change < 0 ) { // change is negative
       println( "Going down ..." );
       myPort.write('A');
@@ -41,5 +48,6 @@ void draw() {
       println( "Going up ^^^" );
       myPort.write('B');
     }
+    
   }
 }
