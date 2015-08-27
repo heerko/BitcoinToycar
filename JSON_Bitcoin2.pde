@@ -13,8 +13,8 @@ void setup() {
   println(value); 
   old_value = value; // store it, so we can compare it later
 
-  println(Serial.list());
-  String portName = Serial.list()[3];
+  println(Serial.list()); // this prints a list of available serial ports, make sure you choose the right number. 
+  String portName = Serial.list()[3]; // The list is zero based and my port in the fourth, so the number is 3. Programming is weird sometimes.
   myPort = new Serial(this, portName, 9600); // connect to the Arduino. Make sure you have the right port number
 }
 
@@ -30,13 +30,13 @@ void draw() {
 
   if ( value != old_value ) { // something changed
     change = value - old_value; // how much
+    print( "Old: " + old_value + " New: " + value + " " );
     old_value = value; // save it again
   }
-  
+
   if ( change == 0 ) {
-    print( "." );
+    println( "." );
   } else {
-    print( "Old: " + old_value + " New: " + value + " " );
     if ( change < 0 ) { // change is negative
       println( "Going down ..." );
       myPort.write('A');
@@ -49,17 +49,17 @@ void draw() {
 
 /*
 The JSON looks like this:
-{
-  "24h_avg": 201.09,
-  "ask": 203.18,
-  "bid": 202.92,
-  "last": 203.07,
-  "timestamp": "Thu, 27 Aug 2015 20:51:57 -0000",
-  "volume_btc": 9785.05,
-  "volume_percent": 12.98
-}
-We will use the 'last' value.
-*/
+ {
+ "24h_avg": 201.09,
+ "ask": 203.18,
+ "bid": 202.92,
+ "last": 203.07,
+ "timestamp": "Thu, 27 Aug 2015 20:51:57 -0000",
+ "volume_btc": 9785.05,
+ "volume_percent": 12.98
+ }
+ We will use the 'last' value.
+ */
 float getAndProcessJson(  ) {
   json = loadJSONObject( url );
   float current = json.getFloat( "last" );
