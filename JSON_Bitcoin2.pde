@@ -9,6 +9,7 @@ Serial myPort;
 
 void setup() {
   frameRate( 1 ); // one frame per second
+  //fullScreen();
   float value = getAndProcessJson();
   println(value); 
   old_value = value; // store it, so we can compare it later
@@ -36,6 +37,7 @@ void draw() {
 
   if ( change == 0 ) {
     println( "." );
+    myPort.write('C');
   } else {
     if ( change < 0 ) { // change is negative
       println( "Going down ..." );
